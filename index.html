@@ -1,0 +1,216 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>מחשבון היוון לשיוך דירות בקיבוץ חפץ חיים</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+            background-color: #f0f8ff;
+            color: #333;
+        }
+        h1, h2 {
+            color: #2c3e50;
+            text-align: center;
+            border-bottom: 2px solid #3498db;
+            padding-bottom: 10px;
+        }
+        .form-group {
+            margin-bottom: 20px;
+            background-color: #fff;
+            padding: 15px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        label {
+            display: block;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #2c3e50;
+        }
+        input, select {
+            width: 100%;
+            padding: 10px;
+            margin-top: 5px;
+            box-sizing: border-box;
+            border: 1px solid #bdc3c7;
+            border-radius: 4px;
+        }
+        button {
+            background-color: #3498db;
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            cursor: pointer;
+            font-size: 16px;
+            border-radius: 4px;
+            transition: background-color 0.3s;
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        button:hover {
+            background-color: #2980b9;
+        }
+        #result {
+            margin-top: 20px;
+            border-top: 2px solid #3498db;
+            padding-top: 20px;
+        }
+        .explanation {
+            background-color: #e8f6fd;
+            padding: 10px;
+            border-radius: 5px;
+            margin-top: 5px;
+            font-size: 14px;
+            color: #34495e;
+        }
+        .result-item {
+            margin-bottom: 10px;
+            padding: 10px;
+            background-color: #ecf0f1;
+            border-radius: 5px;
+        }
+        .result-item strong {
+            color: #e74c3c;
+        }
+        .disclaimer {
+            font-style: italic;
+            font-size: 12px;
+            color: #7f8c8d;
+            margin-top: 20px;
+        }
+        .important-note {
+            background-color: #f9e79f;
+            border-left: 5px solid #f1c40f;
+            padding: 10px;
+            margin-top: 20px;
+        }
+        @media (max-width: 600px) {
+            body {
+                padding: 10px;
+            }
+            .form-group {
+                padding: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>מחשבון היוון לשיוך דירות בקיבוץ חפץ חיים</h1>
+    <div class="form-group">
+        <label for="propertyValue">שווי הנכס (בש"ח):</label>
+        <input type="number" id="propertyValue" required min="0">
+        <div class="explanation">זהו הערך הכספי המוערך של הנכס כולו.</div>
+    </div>
+    <div class="form-group">
+        <label for="currentSize">גודל הנכס הקיים (במ"ר):</label>
+        <input type="number" id="currentSize" value="160" required min="0">
+        <div class="explanation">גודל הנכס הבנוי כיום. ברירת המחדל היא 160 מ"ר.</div>
+    </div>
+    <div class="form-group">
+        <label for="buildingRights">זכויות בנייה כוללות (במ"ר):</label>
+        <input type="number" id="buildingRights" value="370" required min="0" max="370">
+        <div class="explanation">זכויות הבנייה הכוללות למגרש, עד 370 מ"ר.</div>
+    </div>
+    <div class="form-group">
+        <label for="desiredSize">שטח מבוקש לבנייה (במ"ר):</label>
+        <input type="number" id="desiredSize" value="160" required min="0" max="370">
+        <div class="explanation">השטח שברצונך לבנות בפועל, עד 370 מ"ר.</div>
+    </div>
+    <div class="form-group">
+        <label for="veteranStatus">סטטוס חבר:</label>
+        <select id="veteranStatus">
+            <option value="veteran">ותיק</option>
+            <option value="new">חדש</option>
+        </select>
+        <div class="explanation">חבר ותיק הוא מי שהיה חבר קיבוץ לפני 27.3.2007. חבר חדש הצטרף אחרי תאריך זה.</div>
+    </div>
+    <div class="form-group">
+        <label for="paymentOption">אפשרות תשלום:</label>
+        <select id="paymentOption">
+            <option value="immediate">תשלום מיידי</option>
+            <option value="deferred">תשלום נדחה</option>
+        </select>
+        <div class="explanation">תשלום מיידי: תשלום מלא עכשיו. תשלום נדחה: אפשרות לדחות חלק מהתשלום עד למועד העברת הזכויות בעתיד.</div>
+    </div>
+    <div class="form-group">
+        <label for="heirsCount">מספר יורשים:</label>
+        <input type="number" id="heirsCount" value="1" min="1" required>
+        <div class="explanation">מספר היורשים שביניהם יתחלק התשלום, אם רלוונטי.</div>
+    </div>
+    <button onclick="calculateFees()">חשב דמי היוון</button>
+    <button onclick="clearForm()" style="background-color: #e74c3c;">נקה טופס</button>
+    <div id="result"></div>
+    <p class="disclaimer">הערה: תוצאות החישוב הן להערכה בלבד ואינן מהוות אישור רשמי. יש להתייעץ עם הגורמים המוסמכים בקיבוץ ובמנהל מקרקעי ישראל לקבלת מידע מדויק ועדכני.</p>
+
+    <script>
+    function calculateFees() {
+        var propertyValue = parseFloat(document.getElementById('propertyValue').value) || 0;
+        var currentSize = parseFloat(document.getElementById('currentSize').value) || 160;
+        var buildingRights = Math.min(parseFloat(document.getElementById('buildingRights').value) || 370, 370);
+        var desiredSize = Math.min(parseFloat(document.getElementById('desiredSize').value) || 160, 370);
+        var veteranStatus = document.getElementById('veteranStatus').value;
+        var paymentOption = document.getElementById('paymentOption').value;
+        var heirsCount = parseInt(document.getElementById('heirsCount').value) || 1;
+
+        var baseFee, additionalFee;
+        var sizeForCalculation = Math.max(currentSize, desiredSize);
+
+        if (veteranStatus === 'veteran') {
+            baseFee = propertyValue * 0.2925 * (Math.min(sizeForCalculation, 160) / 160);
+            additionalFee = sizeForCalculation > 160 ? propertyValue * 0.33 * ((sizeForCalculation - 160) / 160) : 0;
+        } else {
+            baseFee = propertyValue * 0.91 * (sizeForCalculation / 370);
+            additionalFee = 0;
+        }
+
+        var totalFee = baseFee + additionalFee;
+        var vatAmount = totalFee * 0.17;
+        var totalWithVat = totalFee + vatAmount;
+        var feePerHeir = totalWithVat / heirsCount;
+        var percentageOfPropertyValue = (totalWithVat / propertyValue) * 100;
+
+        // חישוב הסכום שעל המשפחות להעביר לקיבוץ
+        var kibbutzFee = propertyValue * 0.0375;
+        var kibbutzFeeWithVat = kibbutzFee * 1.17;
+
+        var resultDiv = document.getElementById('result');
+        resultDiv.innerHTML = '<h2>תוצאות החישוב:</h2>' +
+            '<div class="result-item"><strong>גודל הנכס הקיים:</strong> ' + currentSize + ' מ"ר</div>' +
+            '<div class="result-item"><strong>זכויות בנייה כוללות:</strong> ' + buildingRights + ' מ"ר</div>' +
+            '<div class="result-item"><strong>שטח מבוקש לבנייה:</strong> ' + desiredSize + ' מ"ר</div>' +
+            '<div class="result-item"><strong>דמי היוון בסיסיים:</strong> ' + numberWithCommas(baseFee) + ' ₪</div>' +
+            '<div class="result-item"><strong>תוספת עבור שטח נוסף:</strong> ' + numberWithCommas(additionalFee) + ' ₪</div>' +
+            '<div class="result-item"><strong>מע"מ (17%):</strong> ' + numberWithCommas(vatAmount) + ' ₪</div>' +
+            '<div class="result-item"><strong>סה"כ לתשלום לרמ"י:</strong> ' + numberWithCommas(totalWithVat) + ' ₪</div>' +
+            '<div class="result-item"><strong>אחוז מערך הנכס:</strong> ' + percentageOfPropertyValue.toFixed(2) + '%</div>' +
+            '<div class="result-item"><strong>תשלום ליורש (אם רלוונטי):</strong> ' + numberWithCommas(feePerHeir) + ' ₪</div>' +
+            '<div class="important-note"><strong>סכום להעברה לקיבוץ:</strong> ' + numberWithCommas(kibbutzFeeWithVat) + ' ₪ (3.75% + מע"מ)</div>' +
+            '<div class="explanation">הסבר: עבור חבר ' + (veteranStatus === 'veteran' ? 'ותיק' : 'חדש') + ', החישוב מבוסס על ' +
+            (veteranStatus === 'veteran' ? '29.25%' : '91%') + ' מערך הנכס ' +
+            (veteranStatus === 'veteran' ? 'עבור 160 מ"ר ראשונים, ו-33% על היתרה עד 370 מ"ר' : 'לכל השטח המבוקש עד 370 מ"ר') + '.</div>' +
+            '<div class="explanation">הסכום להעברה לקיבוץ מייצג את התשלום הראשוני של 3.75% + מע"מ ששולם על ידי הקיבוץ לרמ"י.</div>' +
+            (paymentOption === 'deferred' ? '<div class="explanation">שים לב: בחרת באפשרות תשלום נדחה. יש להתייעץ עם הגורמים המוסמכים לגבי תנאי הדחייה והריבית.</div>' : '');
+    }
+
+    function numberWithCommas(x) {
+        return x.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
+    function clearForm() {
+        document.getElementById('propertyValue').value = '';
+        document.getElementById('currentSize').value = '160';
+        document.getElementById('buildingRights').value = '370';
+        document.getElementById('desiredSize').value = '160';
+        document.getElementById('veteranStatus').value = 'veteran';
+        document.getElementById('paymentOption').value = 'immediate';
+        document.getElementById('heirsCount').value = '1';
+        document.getElementById('result').innerHTML = '';
+    }
+    </script>
+</body>
+</html>
