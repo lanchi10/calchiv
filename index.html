@@ -89,14 +89,6 @@
             padding: 10px;
             margin-top: 20px;
         }
-        @media (max-width: 600px) {
-            body {
-                padding: 10px;
-            }
-            .form-group {
-                padding: 10px;
-            }
-        }
     </style>
 </head>
 <body>
@@ -134,8 +126,9 @@
         <select id="paymentOption">
             <option value="immediate">תשלום מיידי</option>
             <option value="deferred">תשלום נדחה</option>
+            <option value="vatOnly">מע"מ בלבד</option>
         </select>
-        <div class="explanation">תשלום מיידי: תשלום מלא עכשיו. תשלום נדחה: אפשרות לדחות חלק מהתשלום עד למועד העברת הזכויות בעתיד.</div>
+        <div class="explanation">תשלום מיידי: תשלום מלא עכשיו. תשלום נדחה: אפשרות לדחות חלק מהתשלום עד למועד העברת הזכויות בעתיד. מע"מ בלבד: תשלום המע"מ כעת ודחיית יתרת התשלום.</div>
     </div>
     <div class="form-group">
         <label for="heirsCount">מספר יורשים:</label>
@@ -148,6 +141,10 @@
     <p class="disclaimer">הערה: תוצאות החישוב הן להערכה בלבד ואינן מהוות אישור רשמי. יש להתייעץ עם הגורמים המוסמכים בקיבוץ ובמנהל מקרקעי ישראל לקבלת מידע מדויק ועדכני.</p>
 
     <script>
+    function numberWithCommas(x) {
+        return x.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    }
+
     function calculateFees() {
         var propertyValue = parseFloat(document.getElementById('propertyValue').value) || 0;
         var currentSize = parseFloat(document.getElementById('currentSize').value) || 160;
@@ -158,13 +155,18 @@
         var heirsCount = parseInt(document.getElementById('heirsCount').value) || 1;
 
         var baseFee, additionalFee;
-        var sizeForCalculation = Math.max(currentSize, desiredSize);
+        var sizeForCalculation = Math.max(currentSize, desiredSize, buildingRights);
 
         if (veteranStatus === 'veteran') {
-            baseFee = propertyValue * 0.2925 * (Math.min(sizeForCalculation, 160) / 160);
-            additionalFee = sizeForCalculation > 160 ? propertyValue * 0.33 * ((sizeForCalculation - 160) / 160) : 0;
+            if (sizeForCalculation <= 160) {
+                baseFee = propertyValue * 0.2925;
+                additionalFee = 0;
+            } else {
+                baseFee = propertyValue * 0.2925 * (160 / sizeForCalculation);
+                additionalFee = propertyValue * 0.33 * ((sizeForCalculation - 160) / sizeForCalculation);
+            }
         } else {
-            baseFee = propertyValue * 0.91 * (sizeForCalculation / 370);
+            baseFee = propertyValue * 0.91;
             additionalFee = 0;
         }
 
@@ -178,6 +180,26 @@
         var kibbutzFee = propertyValue * 0.0375;
         var kibbutzFeeWithVat = kibbutzFee * 1.17;
 
+        // חישוב הסכום נטו שנשאר לחבר ולכל יורש
+        var netValueForMember = propertyValue - totalWithVat - kibbutzFeeWithVat;
+        var netValuePerHeir = netValueForMember / heirsCount;
+
+        var immediatePayment, deferredPayment;
+        switch(paymentOption) {
+            case 'immediate':
+                immediatePayment = totalWithVat;
+                deferredPayment = 0;
+                break;
+            case 'deferred':
+                immediatePayment = 0;
+                deferredPayment = totalWithVat;
+                break;
+            case 'vatOnly':
+                immediatePayment = vatAmount;
+                deferredPayment = totalFee;
+                break;
+        }
+
         var resultDiv = document.getElementById('result');
         resultDiv.innerHTML = '<h2>תוצאות החישוב:</h2>' +
             '<div class="result-item"><strong>גודל הנכס הקיים:</strong> ' + currentSize + ' מ"ר</div>' +
@@ -185,20 +207,16 @@
             '<div class="result-item"><strong>שטח מבוקש לבנייה:</strong> ' + desiredSize + ' מ"ר</div>' +
             '<div class="result-item"><strong>דמי היוון בסיסיים:</strong> ' + numberWithCommas(baseFee) + ' ₪</div>' +
             '<div class="result-item"><strong>תוספת עבור שטח נוסף:</strong> ' + numberWithCommas(additionalFee) + ' ₪</div>' +
+            '<div class="result-item"><strong>סה"כ דמי היוון:</strong> ' + numberWithCommas(totalFee) + ' ₪</div>' +
             '<div class="result-item"><strong>מע"מ (17%):</strong> ' + numberWithCommas(vatAmount) + ' ₪</div>' +
             '<div class="result-item"><strong>סה"כ לתשלום לרמ"י:</strong> ' + numberWithCommas(totalWithVat) + ' ₪</div>' +
             '<div class="result-item"><strong>אחוז מערך הנכס:</strong> ' + percentageOfPropertyValue.toFixed(2) + '%</div>' +
+            '<div class="result-item"><strong>תשלום מיידי:</strong> ' + numberWithCommas(immediatePayment) + ' ₪</div>' +
+            '<div class="result-item"><strong>תשלום נדחה:</strong> ' + numberWithCommas(deferredPayment) + ' ₪</div>' +
             '<div class="result-item"><strong>תשלום ליורש (אם רלוונטי):</strong> ' + numberWithCommas(feePerHeir) + ' ₪</div>' +
             '<div class="important-note"><strong>סכום להעברה לקיבוץ:</strong> ' + numberWithCommas(kibbutzFeeWithVat) + ' ₪ (3.75% + מע"מ)</div>' +
-            '<div class="explanation">הסבר: עבור חבר ' + (veteranStatus === 'veteran' ? 'ותיק' : 'חדש') + ', החישוב מבוסס על ' +
-            (veteranStatus === 'veteran' ? '29.25%' : '91%') + ' מערך הנכס ' +
-            (veteranStatus === 'veteran' ? 'עבור 160 מ"ר ראשונים, ו-33% על היתרה עד 370 מ"ר' : 'לכל השטח המבוקש עד 370 מ"ר') + '.</div>' +
-            '<div class="explanation">הסכום להעברה לקיבוץ מייצג את התשלום הראשוני של 3.75% + מע"מ ששולם על ידי הקיבוץ לרמ"י.</div>' +
-            (paymentOption === 'deferred' ? '<div class="explanation">שים לב: בחרת באפשרות תשלום נדחה. יש להתייעץ עם הגורמים המוסמכים לגבי תנאי הדחייה והריבית.</div>' : '');
-    }
-
-    function numberWithCommas(x) {
-        return x.toFixed(0).toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+            '<div class="important-note"><strong>סכום נטו שנשאר לחבר:</strong> ' + numberWithCommas(netValueForMember) + ' ₪</div>' +
+            '<div class="important-note"><strong>סכום נטו ליורש:</strong> ' + numberWithCommas(netValuePerHeir) + ' ₪</div>';
     }
 
     function clearForm() {
@@ -214,3 +232,7 @@
     </script>
 </body>
 </html>
+Last edited לפני 16 דקות
+
+
+
