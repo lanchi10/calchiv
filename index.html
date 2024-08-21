@@ -89,6 +89,15 @@
             padding: 10px;
             margin-top: 20px;
         }
+        .immediate-payment {
+            background-color: #f39c12;
+            color: white;
+            padding: 10px;
+            border-radius: 5px;
+            font-weight: bold;
+            margin-top: 10px;
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -176,11 +185,9 @@
         var feePerHeir = totalWithVat / heirsCount;
         var percentageOfPropertyValue = (totalWithVat / propertyValue) * 100;
 
-        // חישוב הסכום שעל המשפחות להעביר לקיבוץ
         var kibbutzFee = propertyValue * 0.0375;
         var kibbutzFeeWithVat = kibbutzFee * 1.17;
 
-        // חישוב הסכום נטו שנשאר לחבר ולכל יורש
         var netValueForMember = propertyValue - totalWithVat - kibbutzFeeWithVat;
         var netValuePerHeir = netValueForMember / heirsCount;
 
@@ -211,7 +218,7 @@
             '<div class="result-item"><strong>מע"מ (17%):</strong> ' + numberWithCommas(vatAmount) + ' ₪</div>' +
             '<div class="result-item"><strong>סה"כ לתשלום לרמ"י:</strong> ' + numberWithCommas(totalWithVat) + ' ₪</div>' +
             '<div class="result-item"><strong>אחוז מערך הנכס:</strong> ' + percentageOfPropertyValue.toFixed(2) + '%</div>' +
-            '<div class="result-item"><strong>תשלום מיידי:</strong> ' + numberWithCommas(immediatePayment) + ' ₪</div>' +
+            '<div class="immediate-payment"><strong>תשלום מיידי:</strong> ' + numberWithCommas(immediatePayment) + ' ₪</div>' +
             '<div class="result-item"><strong>תשלום נדחה:</strong> ' + numberWithCommas(deferredPayment) + ' ₪</div>' +
             '<div class="result-item"><strong>תשלום ליורש (אם רלוונטי):</strong> ' + numberWithCommas(feePerHeir) + ' ₪</div>' +
             '<div class="important-note"><strong>סכום להעברה לקיבוץ:</strong> ' + numberWithCommas(kibbutzFeeWithVat) + ' ₪ (3.75% + מע"מ)</div>' +
@@ -232,7 +239,8 @@
     </script>
 </body>
 </html>
-Last edited לפני 16 דקות
+
+Version 2 of 2
 
 
 
